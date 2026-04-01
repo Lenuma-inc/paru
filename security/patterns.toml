@@ -1,0 +1,358 @@
+# Pattern database for local PKGBUILD security scanning.
+
+[[pkgbuild_analysis]]
+id = "P-CURL-PIPE"
+pattern = 'curl\s[^|\n]*\|\s*(ba)?sh'
+points = 90
+description = "curl output piped to shell (download-and-execute)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-WGET-PIPE"
+pattern = 'wget\s[^|\n]*\|\s*(ba)?sh'
+points = 90
+description = "wget output piped to shell (download-and-execute)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-REVSHELL-DEVTCP"
+pattern = '/dev/tcp/'
+points = 95
+description = "Bash reverse shell via /dev/tcp"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-REVSHELL-NC"
+pattern = '\b(nc|ncat)\s+[^;&|\n]*(-e|-c)\s'
+points = 95
+description = "Netcat reverse shell"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-REVSHELL-SOCAT"
+pattern = 'socat\s.*TCP.*EXEC'
+points = 90
+description = "Socat reverse shell"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-REVSHELL-PYTHON"
+pattern = 'socket\..*connect.*subprocess'
+points = 85
+description = "Python reverse shell pattern"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-EVAL-BASE64"
+pattern = '(eval.*base64|base64.*eval)'
+points = 85
+description = "Base64-decoded payload executed via eval"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-BASE64"
+pattern = 'base64\s+(\S+\s+)*(-d|--decode)'
+points = 60
+description = "Base64 decoding (possible payload hiding)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-EVAL-VAR"
+pattern = 'eval\s+["$]'
+points = 50
+description = "Dynamic code execution via eval"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SOURCE-REMOTE"
+pattern = '(source|\.)\s+<\(curl'
+points = 90
+description = "Sourcing remote script via process substitution"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-GZIP-EXEC"
+pattern = '(gunzip|zcat)\s.*\|\s*(ba)?sh'
+points = 70
+description = "Compressed payload piped to shell"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SSH-ACCESS"
+pattern = '~/\.ssh/|/home/[^/]+/\.ssh/'
+points = 75
+description = "Accessing SSH keys"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-BROWSER-DATA"
+pattern = '\.(mozilla|config/chromium|config/google-chrome|config/BraveSoftware)/'
+points = 70
+description = "Accessing browser profile data"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-GPG-ACCESS"
+pattern = '~/\.gnupg/|/home/[^/]+/\.gnupg/'
+points = 65
+description = "Accessing GPG keyring"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-PROFILE-MOD"
+pattern = '(>>?\s*~/\.(bashrc|zshrc|profile|bash_profile))'
+points = 55
+description = "Modifying shell profile (persistence)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SYSTEMD-CREATE"
+pattern = 'install.*\.service.*systemd|systemctl\s+enable'
+points = 35
+description = "Creating/enabling systemd service"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-CRON-CREATE"
+pattern = 'crontab|/etc/cron\.d/'
+points = 45
+description = "Creating cron job (persistence)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-LD-PRELOAD"
+pattern = 'LD_PRELOAD\s*='
+points = 60
+description = "LD_PRELOAD injection"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-PASSWD-READ"
+pattern = '/etc/(passwd|shadow)'
+points = 60
+description = "Reading system password files"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-DISCORD-WEBHOOK"
+pattern = 'discord(app)?\.com/api/webhooks/'
+points = 70
+description = "Discord webhook URL (data exfiltration channel)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-URL-SHORTENER"
+pattern = '(bit\.ly|tinyurl\.com|t\.co|is\.gd|v\.gd|short\.io)/'
+points = 60
+description = "URL shortener (hiding real destination)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-CURL-PIPE-PYTHON"
+pattern = 'curl\s[^|\n]*\|\s*python[23]?'
+points = 90
+description = "curl output piped to Python interpreter (download-and-execute)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-CURL-PIPE-PERL"
+pattern = 'curl\s[^|\n]*\|\s*perl'
+points = 90
+description = "curl output piped to Perl interpreter (download-and-execute)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-WGET-PIPE-PYTHON"
+pattern = 'wget\s[^|\n]*\|\s*python[23]?'
+points = 90
+description = "wget output piped to Python interpreter (download-and-execute)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-PYTHON-INLINE"
+pattern = "python[23]?\\s+-c\\s+[\"']"
+points = 45
+description = "Python inline code execution"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SUID-BIT"
+pattern = 'chmod\s+(-\S+\s+)*[ugo]*\+s\s|chmod\s+(-\S+\s+)*[2-7][0-7]{3}\s|install\s+.*-m\s*[2-7][0-7]{3}\s'
+points = 70
+description = "Setting SUID/SGID bit (privilege escalation)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-MKFIFO"
+pattern = 'mkfifo\s'
+points = 55
+description = "Named pipe creation (possible reverse shell component)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-OPENSSL-CLIENT"
+pattern = 'openssl\s+s_client'
+points = 55
+description = "OpenSSL client connection (possible encrypted C2 channel)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-CLIPBOARD-READ"
+pattern = '(xclip|xsel|wl-paste)\s'
+points = 50
+description = "Clipboard access (possible credential theft)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-DISK-READ"
+pattern = '\bdd\s+if=/dev/sd'
+points = 60
+description = "Direct disk device read (data exfiltration)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-MINER-BINARY"
+pattern = '(xmrig|cpuminer|minerd|ethminer|bfgminer|cgminer|nbminer|phoenixminer|lolminer|gminer|teamredminer)'
+points = 70
+description = "Reference to cryptocurrency mining software"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-STRATUM-URL"
+pattern = 'stratum\+[a-z]+://'
+points = 85
+description = "Stratum mining protocol URL (cryptocurrency mining)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-MINING-POOL"
+pattern = '(pool\.minergate|nanopool\.org|2miners\.com|f2pool\.com|ethermine\.org|nicehash\.com|miningpoolhub\.com|unmineable\.com|hashvault\.pro|moneroocean\.stream)'
+points = 80
+description = "Known cryptocurrency mining pool domain"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-PYTHON-EXEC-URL"
+pattern = 'exec\s*\(\s*(urlopen|requests\.get|urllib)'
+points = 90
+description = "Python fetch-and-execute (exec with URL fetch)"
+override_gate = true
+
+[[pkgbuild_analysis]]
+id = "P-WGET-CHMOD-EXEC"
+pattern = '(curl|wget)\s[^;&|\n]*\S+\s*[;&|]+\s*chmod\s+(-\S+\s+)*\+x'
+points = 85
+description = "Download followed by chmod +x (download-and-execute preparation)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-TMP-EXECUTION"
+pattern = '(chmod\s+(-\S+\s+)*\+x\s+/tmp/|>\s*/tmp/\S+\s*[;&|]+\s*(ba)?sh\s+/tmp/)'
+points = 70
+description = "Writing or executing files in /tmp (common malware staging)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-NOHUP-BACKGROUND"
+pattern = 'nohup\s+\S+.*&'
+points = 55
+description = "nohup with backgrounding (persistent hidden process)"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-DEVNULL-BACKGROUND"
+pattern = '(curl|wget|python[23]?|bash|sh)\s+.*>/dev/null.*&'
+points = 65
+description = "Network/shell command backgrounded with suppressed output"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SUDOERS-MOD"
+pattern = '/etc/sudoers'
+points = 75
+description = "Sudoers file access/modification"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-SETCAP"
+pattern = 'setcap\s+cap_'
+points = 65
+description = "Linux capability manipulation"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-HISTORY-CLEAR"
+pattern = 'unset\s+HISTFILE|HISTFILE=/dev/null|history\s+-c|set\s+\+o\s+history'
+points = 70
+description = "Shell history clearing/suppression"
+override_gate = false
+
+[[pkgbuild_analysis]]
+id = "P-LOG-CLEAR"
+pattern = '\brm\s+(-\S+\s+)*/var/log|truncate\s+.*\s+/var/log|>\s*/var/log/'
+points = 75
+description = "System log clearing/truncation"
+override_gate = false
+
+[[source_url_analysis]]
+id = "P-RAW-IP-URL"
+pattern = 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+points = 50
+description = "Source URL uses raw IP address instead of domain"
+override_gate = false
+
+[[source_url_analysis]]
+id = "P-HTTP-SOURCE"
+pattern = 'http://[^$\s]'
+points = 15
+description = "Plain HTTP source URL (no TLS, MITM risk)"
+override_gate = false
+
+[[source_url_analysis]]
+id = "P-PASTEBIN"
+pattern = '(pastebin\.com|paste\.ee|hastebin\.com|ptpb\.pw|ix\.io)/'
+points = 50
+description = "Source from paste service (untrusted, mutable content)"
+override_gate = false
+
+[[gtfobins_analysis]]
+id = "G-PIPE-NODE"
+pattern = '(curl|wget)\s[^|\n]*\|\s*node\b'
+points = 90
+description = "Download piped to Node.js interpreter"
+override_gate = true
+
+[[gtfobins_analysis]]
+id = "G-PIPE-RUBY"
+pattern = '(curl|wget)\s[^|\n]*\|\s*ruby\b'
+points = 90
+description = "Download piped to Ruby interpreter"
+override_gate = true
+
+[[gtfobins_analysis]]
+id = "G-PIPE-PHP"
+pattern = '(curl|wget)\s[^|\n]*\|\s*php\b'
+points = 90
+description = "Download piped to PHP interpreter"
+override_gate = true
+
+[[gtfobins_analysis]]
+id = "G-BINDSHELL-NC"
+pattern = '\b(nc|ncat)\s+.*-l\s.*(-e|-c)\s|\b(nc|ncat)\s+.*(-e|-c)\s.*-l'
+points = 90
+description = "Netcat bind shell (listen + exec)"
+override_gate = true
+
+[[gtfobins_analysis]]
+id = "G-TAR-CHECKPOINT"
+pattern = 'tar\s.*--checkpoint-action\s*=\s*exec'
+points = 85
+description = "tar --checkpoint-action=exec (arbitrary command execution)"
+override_gate = true
+
+[[gtfobins_analysis]]
+id = "G-FIND-EXEC"
+pattern = 'find\s.*-exec\s+(/bin/)?(sh|bash|dash|zsh|ksh|csh)\b'
+points = 60
+description = "find -exec with shell (GTFOBins command execution)"
+override_gate = false

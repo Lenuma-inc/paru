@@ -23,8 +23,6 @@ cini = "1.0.0"
 pacmanconf = "3.1.0"
 raur = "7.0.0"
 srcinfo = "2.1.0"
-
-
 ansiterm = "0.12.2"
 anyhow = { version = "1.0.100", features = ["backtrace"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock"] }

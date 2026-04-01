@@ -351,21 +351,6 @@ passed to gpg. Multiple arguments may be passed by supplying a space
 separated list that is quoted by the shell.
 
 .TP
-.B \-\-fm <command>
-This enables fm review mode, where PKGBUILD review is done using the file
-manager specified by command.
-
-This allows the PKGBUILDs and related files to be edited. Changes won't
-persist unless committed.
-
-.TP
-.B \-\-fmflags <flags>
-Passes arguments to file manager. These flags get passed to every instance where
-file manager is called by paru. Arguments are split on whitespace before being
-passed to the file manager. Multiple arguments may be passed by supplying a space
-separated list that is quoted by the shell.
-
-.TP
 .B \-\-asp <command>
 The command to use for \fBasp\fR calls. This can be a command in
 \fBPATH\fR or an absolute path to the file.
@@ -449,14 +434,6 @@ Sort AUR results by a specific field during search. Defaults to votes.
 .TP
 .B \-\-searchby <name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
 Search for AUR packages by querying the specified field. Defaults to name-desc.
-
-.TP
-.B \-\-skipreview
-Skip the review process.
-
-.TP
-.B \-\-review
-Don't skip the review process.
 
 .TP
 .B \-\-upgrademenu
@@ -609,14 +586,6 @@ is very unlikely.
 .B \-\-nouseask
 Manually resolve package conflicts during the install. Packages which do not
 conflict will not need to be confined manually.
-
-.TP
-.B \-\-savechanges
-Commit changes to pkgbuilds made during review.
-
-.TP
-.B \-\-nosavechanges
-Don't commit changes to pkgbuilds made during review.
 
 .TP
 .B \-\-failfast

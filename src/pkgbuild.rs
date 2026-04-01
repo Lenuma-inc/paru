@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::{download::print_download, exec, install::review};
+use crate::{download::print_download, exec};
 use alpm_utils::Targ;
 use anyhow::{anyhow, bail, Context, Result};
 use aur_fetch::Fetch;
@@ -62,7 +62,6 @@ pub struct PkgbuildRepo {
     pub name: String,
     pub source: RepoSource,
     pub depth: u32,
-    pub skip_review: bool,
     pub force_srcinfo: bool,
     pub path: PathBuf,
     pkgs: OnceCell<Arc<Vec<PkgbuildPkg>>>,
@@ -75,7 +74,6 @@ impl PkgbuildRepo {
             path,
             name,
             source: RepoSource::None,
-            skip_review: false,
             force_srcinfo: false,
             pkgs: OnceCell::new(),
         }
@@ -115,7 +113,6 @@ impl PkgbuildRepo {
             name: ".".to_string(),
             source: RepoSource::Path(dir.clone()),
             depth: 3,
-            skip_review: true,
             force_srcinfo: false,
             path: dir,
             pkgs: Default::default(),
@@ -393,19 +390,6 @@ impl PkgbuildRepos {
             pb.finish();
             println!();
         }
-
-        let review_repos = repos
-            .iter()
-            .filter(|r| {
-                !config
-                    .pkgbuild_repos
-                    .repo(&r.name)
-                    .map(|r| r.skip_review)
-                    .unwrap_or(false)
-            })
-            .map(|r| r.name.as_str())
-            .collect::<Vec<_>>();
-        review(config, &self.fetch, &review_repos)?;
 
         let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
         self.fetch.merge(&all_repos)?;

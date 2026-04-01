@@ -146,10 +146,6 @@ a conflict, causing a package to be removed without the user's confirmation.
 However, this is very unlikely.
 
 .TP
-.B SaveChanges
-Commit changes to pkgbuilds made during review.
-
-.TP
 .B FailFast
 Exit as soon as any AUR packages fail to build.
 
@@ -269,10 +265,6 @@ Sign databases with gpg. Optionally indicate which key to sign with.
 Normally upon AUR packages getting updated the old versions will be removed from the local repo.
 This option disables that behavior, keeping the both all versions and only updating the DB.
 
-.TP
-.B SkipReview
-Skip the review process.
-
 .SH BIN
 Options belonging to the [bin] section.
 
@@ -313,14 +305,6 @@ The command to use for \fBsudo\fR calls. This can be a command in
 guaranteed to work with a custom \fBsudo\fR command.
 
 .TP
-.B FileManager = path/to/fm
-This enables fm review mode, where PKGBUILD review is done using the file
-manager specified by command.
-
-This allows the PKGBUILDs and related files to be edited. Changes won't
-persist unless committed.
-
-.TP
 .B MFlags = Flags...
 Passes arguments to makepkg. These flags get passed to every instance where
 makepkg is called by paru. Arguments are split on whitespace before being
@@ -349,12 +333,6 @@ passed to bat.
 Passes arguments to sudo. These flags get passed to every instance where
 sudo is called by paru. Arguments are split on whitespace before being
 passed to sudo.
-
-.TP
-.B FileManagerFlags = Flags...
-Passes arguments to the file manager. These flags get passed to every instance
-where file manager is called by paru. Arguments are split on whitespace before
-being passed to file manager.
 
 .TP
 .B ChrootFlags = Flags...
@@ -430,10 +408,6 @@ and not on \fBparu -Sya\fR. There is also no review step for this kind of reposi
 .TP
 .B Depth = N
 The search depth for PKGBUILD scanning.
-
-.TP
-.B SkipReview
-Skip review for this repository.
 
 .TP
 .B GenerateSrcinfo

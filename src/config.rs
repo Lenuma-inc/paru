@@ -444,7 +444,6 @@ pub struct Config {
     pub help: bool,
     pub version: bool,
 
-    pub skip_review: bool,
     pub no_check: bool,
     pub no_confirm: bool,
     pub devel: bool,
@@ -455,7 +454,6 @@ pub struct Config {
     pub combined_upgrade: bool,
     pub batch_install: bool,
     pub use_ask: bool,
-    pub save_changes: bool,
     pub clean: usize,
     pub optional: bool,
     pub complete: bool,
@@ -487,7 +485,6 @@ pub struct Config {
     pub pkgctl_bin: String,
     #[default = "bat"]
     pub bat_bin: String,
-    pub fm: Option<String>,
     pub sudo_loop: Vec<String>,
 
     pub mflags: Vec<String>,
@@ -495,7 +492,6 @@ pub struct Config {
     pub gpg_flags: Vec<String>,
     pub sudo_flags: Vec<String>,
     pub bat_flags: Vec<String>,
-    pub fm_flags: Vec<String>,
     pub chroot_flags: Vec<String>,
     pub pager_cmd: Option<String>,
 
@@ -976,7 +972,6 @@ then initialise it with:
             "Url" => repo.source.set_url(Url::parse(value?)?),
             "Path" => repo.source.set_path(value?.to_string()),
             "Depth" => repo.depth = value?.parse()?,
-            "SkipReview" => repo.skip_review = true,
             "GenerateSrcinfo" => repo.force_srcinfo = true,
             _ => eprintln!("{}", tr!("error: unknown option '{}' in repo", key)),
         }
@@ -1016,13 +1011,11 @@ then initialise it with:
             "Sudo" => self.sudo_bin = value,
             "Pager" => self.pager_cmd = Some(value),
             "Bat" => self.bat_bin = value,
-            "FileManager" => self.fm = Some(value),
             "MFlags" => self.mflags.extend(split),
             "GitFlags" => self.git_flags.extend(split),
             "GpgFlags" => self.gpg_flags.extend(split),
             "SudoFlags" => self.sudo_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
-            "FileManagerFlags" => self.fm_flags.extend(split),
             "ChrootFlags" => self.chroot_flags.extend(split),
             "PreBuildCommand" => self.pre_build_command = Some(value),
             _ => eprintln!(
@@ -1039,7 +1032,6 @@ then initialise it with:
         let mut ok2 = true;
 
         match key {
-            "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = SortMode::BottomUp,
             "AurOnly" => self.mode = Mode::AUR,
             "PkgbuildsOnly" => self.mode = Mode::PKGBUILD,
@@ -1059,7 +1051,6 @@ then initialise it with:
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
-            "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::Yes.default_or(key, value)?,

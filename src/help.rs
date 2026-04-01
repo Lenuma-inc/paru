@@ -52,8 +52,6 @@ pub fn help() {
     printtr!("    --batflags  <flags>    Pass arguments to bat");
     printtr!("    --gpg       <file>     gpg command to use");
     printtr!("    --gpgflags  <flags>    Pass arguments to gpg");
-    printtr!("    --fm        <file>     File manager to use for PKGBUILD review");
-    printtr!("    --fmflags   <flags>    Pass arguments to file manager");
     println!();
     printtr!("    --completioninterval   <n> Time in days to refresh completion cache");
     printtr!("    --sortby    <field>    Sort AUR results by a specific field during search");
@@ -61,8 +59,6 @@ pub fn help() {
     printtr!("    --limit     <limit>    Limits the number of items returned in a search");
     printtr!("    -x --regex             Enable regex for aur search");
     println!();
-    printtr!("    --skipreview           Skip the review process");
-    printtr!("    --review               Don't skip the review process");
     printtr!("    --[no]upgrademenu      Show interactive menu to skip upgrades");
     printtr!("    --[no]removemake       Remove makedepends after install");
     printtr!("    --[no]cleanafter       Remove package sources after install");
@@ -71,7 +67,6 @@ pub fn help() {
     println!();
     printtr!("    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs");
     printtr!("    --[no]useask           Automatically resolve conflicts using pacman's ask flag");
-    printtr!("    --[no]savechanges      Commit changes to pkgbuilds made during review");
     printtr!("    --[no]newsonupgrade    Print new news during sysupgrade");
     printtr!("    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together");
     printtr!("    --[no]batchinstall     Build multiple AUR packages then install them together");

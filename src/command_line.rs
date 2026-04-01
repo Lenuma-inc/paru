@@ -181,7 +181,6 @@ impl Config {
             Arg::Long("sudo") => self.sudo_bin = value?.to_string(),
             Arg::Long("pkgctl") => self.pkgctl_bin = value?.to_string(),
             Arg::Long("bat") => self.bat_bin = value?.to_string(),
-            Arg::Long("fm") => self.fm = Some(value?.to_string()),
             Arg::Long("pager") => self.pager_cmd = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
@@ -193,7 +192,6 @@ impl Config {
             Arg::Long("gpgflags") => self.gpg_flags.extend(split_whitespace(value?)),
             Arg::Long("sudoflags") => self.sudo_flags.extend(split_whitespace(value?)),
             Arg::Long("batflags") => self.bat_flags.extend(split_whitespace(value?)),
-            Arg::Long("fmflags") => self.fm_flags.extend(split_whitespace(value?)),
             Arg::Long("chrootflags") => self.chroot_flags.extend(split_whitespace(value?)),
             Arg::Long("chrootpkgs") => self
                 .chroot_pkgs
@@ -255,8 +253,6 @@ impl Config {
                 }
             }
             Arg::Long("interactive") => self.interactive = true,
-            Arg::Long("skipreview") => self.skip_review = true,
-            Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
             Arg::Long("nocheck") => self.no_check = true,
             Arg::Long("devel") => self.devel = true,
@@ -269,8 +265,6 @@ impl Config {
             Arg::Long("nopgpfetch") => self.pgp_fetch = false,
             Arg::Long("useask") => self.use_ask = true,
             Arg::Long("nouseask") => self.use_ask = false,
-            Arg::Long("savechanges") => self.save_changes = true,
-            Arg::Long("nosavechanges") => self.save_changes = false,
             Arg::Long("combinedupgrade") => self.combined_upgrade = true,
             Arg::Long("nocombinedupgrade") => self.combined_upgrade = false,
             Arg::Long("batchinstall") => self.batch_install = true,
@@ -403,7 +397,6 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("gpg") => TakesValue::Required,
         Arg::Long("sudo") => TakesValue::Required,
         Arg::Long("pkgctl") => TakesValue::Required,
-        Arg::Long("fm") => TakesValue::Required,
         Arg::Long("bat") => TakesValue::Required,
         Arg::Long("makepkgconf") => TakesValue::Required,
         Arg::Long("editorflags") => TakesValue::Required,
@@ -412,7 +405,6 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("gpgflags") => TakesValue::Required,
         Arg::Long("sudoflags") => TakesValue::Required,
         Arg::Long("batflags") => TakesValue::Required,
-        Arg::Long("fmflags") => TakesValue::Required,
         Arg::Long("chrootflags") => TakesValue::Required,
         Arg::Long("chrootpkgs") => TakesValue::Required,
         Arg::Long("rootchrootpkgs") => TakesValue::Required,

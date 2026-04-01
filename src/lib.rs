@@ -19,8 +19,10 @@ mod query;
 mod remove;
 mod repo;
 mod search;
+mod security_scan;
 mod stats;
 mod sync;
+mod traur_integration;
 mod upgrade;
 mod util;
 
@@ -33,11 +35,14 @@ type RaurHandle = raur::Handle;
 #[cfg(feature = "mock")]
 type RaurHandle = crate::mock::Mock;
 
+pub use crate::config::Config;
+pub use crate::traur_integration::scan_pkgbuild_dir;
+
 #[macro_use]
 extern crate smart_default;
 
 use crate::chroot::Chroot;
-use crate::config::{Config, Op};
+use crate::config::Op;
 use crate::exec::has_command;
 use crate::query::print_upgrade_list;
 

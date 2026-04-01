@@ -57,7 +57,6 @@ _pacman_opts_common=(
 	'--pacman-conf[pacman-conf command to use]:pacman:_files'
 	'--git[git command to use]:git:_files'
 	'--gpg[gpg command to use]:gpg:_files'
-	'--fm[file manager to use]:fm:_files'
 	'--asp[asp command to use]:asp:_files'
 	'--pager[pager command to use]:pager:_files'
 
@@ -85,8 +84,6 @@ _pacman_opts_common=(
 	"--newsonupgrade[Print new news during sysupgrade]"
 	"--useask[Automatically resolve conflicts using pacman's ask flag]"
 	'--nouseask[Confirm conflicts manually during the install]'
-	"--savechanges[Commit changes to pkgbuilds made during review]"
-	"--nosavechanges[Don't commit changes to pkgbuilds made during review]"
 	"--failfast[Exit as soon as any AUR packages fail to build]"
 	"--nofailfast[Don't exit as soon as any AUR packages fail to build]"
 	"--keepsrc[Keep src/ and pkg/ directories after building packages]"
@@ -99,7 +96,6 @@ _pacman_opts_common=(
 	'--sudoflags[Pass arguments to sudo]:flags'
 	'--batflags[Pass arguments to bat]:flags'
 	'--gpgflags[Pass arguments to gpg]:flags'
-	'--fmflags[Pass arguments to file manager]:flags'
 	'--chrootflags[Pass arguments to makechrootpkg]:flags'
 
 	'--sudoloop[Loop sudo calls in the background to avoid timeout]'
@@ -119,9 +115,6 @@ _pacman_opts_common=(
 	"--nosigndb[Don't sign databases with gpg]"
 	'--localrepo[Build packages in a local repo]'
 	"--nolocalrepo[Don't build packages in a local repo]"
-
-	'--skipreview[Skip the review process]'
-	"--review[Don't skip the review process]"
 )
 
 # options for passing to _arguments: options for --upgrade commands

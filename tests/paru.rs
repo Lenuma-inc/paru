@@ -28,3 +28,5 @@ mod repo_chroot {
     use crate::common::run_repo_chroot as run;
     include!("common/tests.rs");
 }
+
+mod traur_integration;

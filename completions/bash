@@ -70,14 +70,14 @@ _paru() {
            noconfirm noprogressbar noscriptlet quiet root verbose
 
            repo aur aururl clonedir makepkg mflags pacman pacman-conf git gitflags sudo sudoflags
-           asp gpg gpgflags fm fmflags chrootflags pager completioninterval sortby searchby limit
+           asp gpg gpgflags chrootflags pager completioninterval sortby searchby limit
            upgrademenu removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
-           nouseask savechanges nosavechanges failfast nofailfast keepsrc nokeepsrc combinedupgrade
+           nouseask failfast nofailfast keepsrc nokeepsrc combinedupgrade
            nocombinedupgrade batchinstall nobatchinstall provides noprovides devel nodevel
            develsuffixes sudoloop nosudoloop bottomup topdown newsonupgrade bat batflags
            chroot nochroot sign nosign keeprepocache nokeeprepocache signdb nosigndb
-           localrepo nolocalrepo review skipreview' 'b d h q r v a')
+           localrepo nolocalrepo' 'b d h q r v a')
 
   show=('news stats' 'w s')
   getpkgbuild=('print comments' 'p c')
