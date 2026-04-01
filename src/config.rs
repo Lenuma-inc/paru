@@ -11,7 +11,8 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::{remove_file, OpenOptions};
-use std::io::{stderr, stdin, stdout, BufRead, IsTerminal};
+use std::io::{stderr, stdin, stdout, BufRead, IsTerminal, Write};
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -445,6 +446,10 @@ pub struct Config {
     pub version: bool,
 
     pub no_check: bool,
+    pub downgrade: bool,
+    pub ala_date: Option<String>,
+    pub ala_repos: Option<HashSet<String>>,
+    pub ala_conf: Option<tempfile::NamedTempFile>,
     pub no_confirm: bool,
     pub devel: bool,
     pub clean_after: bool,
@@ -694,6 +699,8 @@ impl Config {
         self.globals.op = self.op.as_str().to_string();
         self.globals.bin = self.pacman_bin.clone();
 
+        self.apply_downgrade()?;
+
         if self.help {
             match self.op {
                 Op::GetPkgBuild | Op::Show | Op::Default => {
@@ -852,6 +859,83 @@ then initialise it with:
         self.ignore.extend(self.pacman.ignore_pkg.clone());
         self.ignore_group.extend(self.pacman.ignore_group.clone());
 
+        Ok(())
+    }
+
+    fn apply_downgrade(&mut self) -> Result<()> {
+        let Some(ala_date) = self.ala_date.clone() else {
+            return Ok(());
+        };
+
+        if self.op == Op::Default {
+            self.set_op_args_globals(Op::Sync);
+            self.args.targets = self.targets.clone();
+        } else if self.op != Op::Sync {
+            bail!(tr!("--downgrade can only be used with -S/--sync"));
+        }
+
+        self.mode = Mode::REPO;
+        self.aur_filter = false;
+
+        while self.args.count("y", "refresh") < 2 {
+            self.args.arg("y".to_string());
+        }
+
+        if self.targets.is_empty() {
+            while self.args.count("u", "sysupgrade") < 2 {
+                self.args.arg("u".to_string());
+            }
+        }
+
+        let expanded = pacmanconf::Config::expand_with_opts(
+            self.pacman_conf_bin.as_deref(),
+            self.pacman_conf.as_deref(),
+            self.root.as_deref(),
+        )?;
+
+        let server = format!(
+            "https://archive.archlinux.org/repos/{}/$repo/os/$arch",
+            ala_date
+        );
+
+        let mut changed = false;
+        let mut section: Option<String> = None;
+        let mut out = String::with_capacity(expanded.len());
+        for line in expanded.lines() {
+            let trimmed = line.trim_start();
+            if trimmed.starts_with('[') && trimmed.ends_with(']') && trimmed.len() > 2 {
+                section = Some(trimmed[1..trimmed.len() - 1].trim().to_ascii_lowercase());
+            }
+            let lower = trimmed.to_ascii_lowercase();
+            let is_ala_repo = section.as_deref().is_some_and(|name| {
+                self.ala_repos
+                    .as_ref()
+                    .is_some_and(|repos| repos.contains(name))
+            });
+            if is_ala_repo && lower.starts_with("server") && !lower.contains("file://") {
+                let pad_len = line.len() - trimmed.len();
+                let pad = &line[..pad_len];
+                out.push_str(pad);
+                out.push_str("Server = ");
+                out.push_str(&server);
+                out.push('\n');
+                changed = true;
+            } else {
+                out.push_str(line);
+                out.push('\n');
+            }
+        }
+
+        ensure!(
+            changed,
+            tr!("could not find repository Server entries in pacman config")
+        );
+
+        let mut ala_conf = tempfile::NamedTempFile::new()?;
+        ala_conf.write_all(out.as_bytes())?;
+        ala_conf.flush()?;
+        self.pacman_conf = Some(ala_conf.path().to_string_lossy().into_owned());
+        self.ala_conf = Some(ala_conf);
         Ok(())
     }
 

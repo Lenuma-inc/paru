@@ -55,6 +55,16 @@ _paru() {
   local cur prev words cword
 
   _init_completion || return
+
+  if [[ ${COMP_WORDS[1]} == downgrade ]]; then
+    if [[ $cur == -* ]]; then
+      _arch_compgen "--date"
+    else
+      _paru_pkg
+    fi
+    return
+  fi
+
   database=('asdeps asexplicit')
   files=('list machinereadable refresh regex' 'l x y')
   query=('changelog check deps explicit file foreign groups info list native owns
@@ -90,6 +100,9 @@ _paru() {
 
   if [[ $? != 0 ]]; then
     _arch_ptr2comp core
+    if [[ $COMP_CWORD -eq 1 && $cur != -* ]]; then
+      COMPREPLY+=($(compgen -W "downgrade" -- "$cur"))
+    fi
   elif [[ ! $prev =~ ^-[[:alnum:]_]*[Vbhr] && ! $prev == --@(cachedir|color|config|dbpath|help|hookdir|gpgdir|logfile|root|version) ]]; then
     [[ $cur == -* ]] && _arch_ptr2comp ${o#* } common ||
       case ${o% *} in

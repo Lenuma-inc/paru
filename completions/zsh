@@ -9,6 +9,7 @@ _pacman_opts_commands=(
 	{-D,--database}'[Modify database]'
 	{-F,--files}'[Query the files database]'
 	{-G,--getpkgbuild}'[Get PKGBUILD from ABS or AUR]'
+	'downgrade[Downgrade package/system via ALA]'
 	{-L,--repoctl}'[List local repos]'
 	{-C,--chrootctl}'[Interactive shell to the chroot]'
 	{-Q,--query}'[Query the package database]'
@@ -255,6 +256,12 @@ _pacman_action_help() {
 _pacman_action_none() {
 	_arguments -s : \
 		"$_pacman_opts_commands[@]"
+}
+
+_pacman_action_downgrade() {
+	_arguments -s : \
+		'--date[ALA snapshot date (YYYY-MM-DD)]:date:' \
+		'*:package:_pacman_completions_all_packages'
 }
 
 # handles --query subcommand
@@ -512,6 +519,10 @@ _pacman_get_command() {
 _pacman_zsh_comp() {
 	local -a args cmds;
 	local tmp
+	if [[ ${words[2]} == "downgrade" ]]; then
+		_pacman_action_downgrade
+		return
+	fi
 	args=( ${${${(M)words:#-*}#-}:#-*} )
 	for tmp in $words; do
 		cmds+=("${${_pacman_opts_commands[(r)*$tmp\[*]%%\[*}#*\)}")

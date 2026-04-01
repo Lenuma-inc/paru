@@ -1,9 +1,10 @@
-# Paru (LunaOS Fork)
+# Paru
 
 Feature packed AUR helper with integrated security scanning
 
-> **Note**: This is a modified fork of Paru for **LunaOS** with built-in PKGBUILD security scanning.
+> **Note**: This is a modified fork of Paru for **LunaOS** with built-in PKGBUILD security scanning and package downgrade functionality.
 > The scanner is based on ideas and patterns from [traur](https://github.com/traur/traur).
+> The `paru downgrade` subcommand is inspired by [archarchive](https://github.com/progzone122/archarchive) (GPL-3.0).
 > See [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for attribution details.
 
 [![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
@@ -13,18 +14,6 @@ Feature packed AUR helper with integrated security scanning
 ## Description
 
 Paru is your standard pacman wrapping AUR helper with lots of features and minimal interaction.
-
-### LunaOS Security Features
-
-This fork includes **automatic PKGBUILD security scanning** (traur-inspired):
-
-- **Automatic security scanning** before building any AUR package
-- **Detection of malicious patterns**: curl | bash, reverse shells, crypto miners, etc.
-- **Risk scoring** with trust tiers: Trusted, Ok, Sketchy, Suspicious, Malicious
-- **Clear security reports** showing detected issues and severity levels
-- **Interactive warnings** for packages with security concerns
-
-Security scanning happens automatically during package installation. Packages flagged as Suspicious or Malicious will require explicit confirmation before installation.
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
 
@@ -76,6 +65,12 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 `paru --gendb` -- Generate the devel database for tracking `*-git` packages. This is only needed when you initially start using paru.
 
 `paru -Bi .` -- Build and install a PKGBUILD in the current directory.
+
+`paru downgrade <pkg>` -- Show archived versions from ALA and downgrade a package interactively.
+
+`paru downgrade <pkg> --date 2024-12-01` -- Downgrade a package to the latest version available on/before a date.
+
+`paru downgrade --date 2024-12-01` -- Roll back repository packages/system to an ALA snapshot date.
 
 ## IRC
 

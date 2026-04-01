@@ -5,6 +5,7 @@ mod command_line;
 mod completion;
 mod config;
 mod devel;
+mod downgrade;
 mod download;
 mod exec;
 mod fmt;
@@ -170,6 +171,12 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         let name = config_path.display().to_string();
         config.parse(Some(name.as_str()), &file)?;
     };
+
+    if let Some(first) = args.first() {
+        if first.as_ref() == "downgrade" {
+            return downgrade::run_subcommand(config, &args[1..]).await;
+        }
+    }
 
     if args.is_empty() {
         config.parse_args(["-Syu"])?;

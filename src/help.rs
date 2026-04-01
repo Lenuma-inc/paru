@@ -21,6 +21,7 @@ pub fn help() {
     printtr!("    paru {-P --show}        [options]");
     printtr!("    paru {-G --getpkgbuild} [package(s)]");
     printtr!("    paru {-B --build}       [dir(s)]");
+    printtr!("    paru downgrade          [--date <date>] [package]");
     println!();
     printtr!("If no arguments are provided 'paru -Syu' will be performed");
     println!();

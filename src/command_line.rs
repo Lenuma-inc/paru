@@ -203,6 +203,10 @@ impl Config {
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
             Arg::Long("noinstalldebug") => self.install_debug = false,
+            Arg::Long("downgrade") => {
+                self.downgrade = true;
+                self.ala_date = Some(normalize_ala_date(value?)?);
+            }
 
             Arg::Long("completioninterval") => {
                 self.completion_interval = value?
@@ -409,6 +413,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("chrootpkgs") => TakesValue::Required,
         Arg::Long("rootchrootpkgs") => TakesValue::Required,
         Arg::Long("completioninterval") => TakesValue::Required,
+        Arg::Long("downgrade") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,
         Arg::Long("searchby") => TakesValue::Required,
         Arg::Long("limit") => TakesValue::Required,
@@ -446,4 +451,50 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("mode") => TakesValue::Required,
         _ => TakesValue::No,
     }
+}
+
+fn normalize_ala_date(s: &str) -> Result<String> {
+    const DATE_ERR: &str =
+        "invalid ALA date '{}', expected YYYY-MM-DD, YYYY/MM/DD, DD-MM-YYYY or DD/MM/YYYY";
+    let sep = if s.contains('-') {
+        '-'
+    } else if s.contains('/') {
+        '/'
+    } else {
+        bail!(tr!(DATE_ERR, s));
+    };
+
+    let mut it = s.split(sep);
+    let (y, m, d) = match (it.next(), it.next(), it.next(), it.next()) {
+        (Some(y), Some(m), Some(d), None) => (y, m, d),
+        _ => {
+            bail!(tr!(DATE_ERR, s))
+        }
+    };
+
+    let (year, month, day) = if y.len() == 4 {
+        if !y.chars().all(|c| c.is_ascii_digit())
+            || !m.chars().all(|c| c.is_ascii_digit())
+            || !d.chars().all(|c| c.is_ascii_digit())
+        {
+            bail!(tr!(DATE_ERR, s));
+        }
+        (y.parse::<u32>()?, m.parse::<u32>()?, d.parse::<u32>()?)
+    } else if d.len() == 4 {
+        if !d.chars().all(|c| c.is_ascii_digit())
+            || !m.chars().all(|c| c.is_ascii_digit())
+            || !y.chars().all(|c| c.is_ascii_digit())
+        {
+            bail!(tr!(DATE_ERR, s));
+        }
+        (d.parse::<u32>()?, m.parse::<u32>()?, y.parse::<u32>()?)
+    } else {
+        bail!(tr!(DATE_ERR, s));
+    };
+
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        bail!(tr!(DATE_ERR, s));
+    }
+
+    Ok(format!("{year:04}/{month:02}/{day:02}"))
 }
