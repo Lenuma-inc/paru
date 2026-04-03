@@ -2,10 +2,8 @@
 
 Feature packed AUR helper with integrated security scanning
 
-> **Note**: This is a modified fork of Paru for **LunaOS** with built-in PKGBUILD security scanning and package downgrade functionality.
-> The scanner is based on ideas and patterns from [traur](https://github.com/traur/traur).
-> The `paru downgrade` subcommand is inspired by [archarchive](https://github.com/progzone122/archarchive) (GPL-3.0).
-> See [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for attribution details.
+> **Note**: This is a modified fork of Paru for **LunaOS**.
+> Fork-specific features are listed below in **Fork Differences (LunaOS)**.
 
 [![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
 [![paru-bin](https://img.shields.io/aur/version/paru-bin?color=1793d1&label=paru-bin&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-bin/)
@@ -14,6 +12,15 @@ Feature packed AUR helper with integrated security scanning
 ## Description
 
 Paru is your standard pacman wrapping AUR helper with lots of features and minimal interaction.
+
+## Fork Differences (LunaOS)
+
+Compared to upstream Paru, this fork includes:
+
+- Integrated PKGBUILD security scanning before build/install.
+- Built-in `paru downgrade` subcommand (ALA-based rollback and package downgrade workflow).
+- Strict typo tolerance for repository package names in interactive install search (`paru <target>`), applied only to repository results (not AUR) and intentionally strict to avoid incorrect matches and unnecessary slowdown.
+- Third-party attributions and licenses: [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
 

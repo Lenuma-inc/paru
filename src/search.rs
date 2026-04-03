@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, NumberMenu};
+use crate::util::{apply_repo_typo_tolerance, input, is_arch_repo, NumberMenu};
 use crate::{info, printtr};
 
 use ansiterm::Style;
@@ -455,7 +455,9 @@ pub fn interactive_search_local(config: &mut Config) -> Result<()> {
 }
 
 pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()> {
-    let repo_pkgs = search_repos(config, &config.targets)?;
+    let mut repo_targets = config.targets.clone();
+    apply_repo_typo_tolerance(config, &mut repo_targets);
+    let repo_pkgs = search_repos(config, &repo_targets)?;
     let custom_pkgs = search_pkgbuilds(config, &config.targets)?;
     let aur_pkgs = search_aur(config, &config.targets).await?;
     let mut all_pkgs = Vec::new();

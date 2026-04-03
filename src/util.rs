@@ -2,7 +2,7 @@ use crate::config::{Config, LocalRepos};
 use crate::repo;
 
 use std::collections::btree_map::Entry;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::fs::File;
 use std::io::{stderr, stdin, stdout, BufRead, Write};
 use std::mem::take;
@@ -81,6 +81,171 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         .set_ignorepkgs(config.pacman.ignore_pkg.iter())?;
 
     Ok((local, aur))
+}
+
+pub fn apply_repo_typo_tolerance(config: &Config, targets: &mut [String]) {
+    if !config.mode.repo() {
+        return;
+    }
+
+    let dbs = config.alpm.syncdbs();
+
+    for target in targets.iter_mut() {
+        let targ = Targ::from(target.as_str());
+        if targ.repo.is_some() {
+            continue;
+        }
+
+        if dbs.pkg(targ.pkg).is_ok()
+            || dbs.find_target_satisfier(targ.pkg).is_some()
+            || dbs.iter().any(|db| db.group(targ.pkg).is_ok())
+        {
+            continue;
+        }
+
+        if let Some(corrected) = best_repo_typo_match(
+            targ.pkg,
+            dbs.iter()
+                .flat_map(|db| db.pkgs().iter().map(|pkg| pkg.name())),
+            config.repo_typo_similarity,
+        ) {
+            eprintln!(
+                "{} {}",
+                config.color.warning.paint("::"),
+                tr!(
+                    "autocorrecting repository target '{}' to '{}'",
+                    targ.pkg,
+                    corrected
+                )
+            );
+            *target = corrected.to_string();
+        }
+    }
+}
+
+fn best_repo_typo_match<'a, I>(input: &str, candidates: I, similarity_percent: usize) -> Option<&'a str>
+where
+    I: Iterator<Item = &'a str>,
+{
+    if input.is_empty() {
+        return None;
+    }
+
+    let normalized_input = collapse_repeats(input);
+    let input_first = normalized_input.first().copied();
+    let mut seen_names = HashSet::new();
+    let mut best: Option<(&str, usize, usize)> = None;
+    let mut tie = false;
+
+    for candidate in candidates {
+        if !seen_names.insert(candidate) {
+            continue;
+        }
+
+        if candidate.is_empty() || candidate == input {
+            continue;
+        }
+
+        let normalized_candidate = collapse_repeats(candidate);
+        if normalized_candidate.first().copied() != input_first {
+            continue;
+        }
+
+        let max_len = normalized_input.len().max(normalized_candidate.len());
+        if max_len == 0 {
+            continue;
+        }
+
+        let max_dist = max_typo_distance(max_len, similarity_percent);
+        let Some(dist) = bounded_levenshtein(&normalized_input, &normalized_candidate, max_dist)
+        else {
+            continue;
+        };
+
+        if (max_len.saturating_sub(dist)) * 100 < max_len * similarity_percent {
+            continue;
+        }
+
+        match best {
+            Some((_, best_dist, best_len)) => {
+                if dist < best_dist || (dist == best_dist && max_len < best_len) {
+                    best = Some((candidate, dist, max_len));
+                    tie = false;
+                } else if dist == best_dist
+                    && max_len == best_len
+                    && best.map(|(name, _, _)| name != candidate).unwrap_or(false)
+                {
+                    tie = true;
+                }
+            }
+            None => {
+                best = Some((candidate, dist, max_len));
+                tie = false;
+            }
+        }
+    }
+
+    if tie {
+        None
+    } else {
+        best.map(|(name, _, _)| name)
+    }
+}
+
+fn collapse_repeats(s: &str) -> Vec<u8> {
+    let mut out = Vec::with_capacity(s.len());
+    let mut prev = None;
+
+    for b in s.bytes() {
+        let b = b.to_ascii_lowercase();
+        if Some(b) != prev {
+            out.push(b);
+            prev = Some(b);
+        }
+    }
+
+    out
+}
+
+fn max_typo_distance(max_len: usize, similarity_percent: usize) -> usize {
+    ((max_len * (100 - similarity_percent)) + 99) / 100
+}
+
+fn bounded_levenshtein(a: &[u8], b: &[u8], max_dist: usize) -> Option<usize> {
+    let len_a = a.len();
+    let len_b = b.len();
+    let len_diff = len_a.abs_diff(len_b);
+    if len_diff > max_dist {
+        return None;
+    }
+
+    if len_a == 0 {
+        return (len_b <= max_dist).then_some(len_b);
+    }
+    if len_b == 0 {
+        return (len_a <= max_dist).then_some(len_a);
+    }
+
+    let mut prev: Vec<usize> = (0..=len_b).collect();
+    let mut curr: Vec<usize> = vec![0; len_b + 1];
+
+    for i in 1..=len_a {
+        curr[0] = i;
+        let mut row_min = curr[0];
+
+        for j in 1..=len_b {
+            let cost = usize::from(a[i - 1] != b[j - 1]);
+            curr[j] = (prev[j] + 1).min(curr[j - 1] + 1).min(prev[j - 1] + cost);
+            row_min = row_min.min(curr[j]);
+        }
+
+        if row_min > max_dist {
+            return None;
+        }
+        std::mem::swap(&mut prev, &mut curr);
+    }
+
+    (prev[len_b] <= max_dist).then_some(prev[len_b])
 }
 
 pub fn split_repo_aur_info<'a, T: AsTarg>(
@@ -399,4 +564,46 @@ pub fn is_arch_repo(name: &str) -> bool {
             | "extra-testing"
             | "multilib-testing"
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::best_repo_typo_match;
+
+    #[test]
+    fn strict_typo_match_works_for_near_names() {
+        let names = vec!["cassette", "cartridge", "portproton"];
+        assert_eq!(
+            best_repo_typo_match("casete", names.iter().copied(), 85),
+            Some("cassette")
+        );
+        assert_eq!(
+            best_repo_typo_match("cartrige", names.iter().copied(), 85),
+            Some("cartridge")
+        );
+    }
+
+    #[test]
+    fn strict_typo_match_rejects_far_names() {
+        let names = vec!["portproton"];
+        assert_eq!(
+            best_repo_typo_match("potprotonon", names.iter().copied(), 85),
+            None
+        );
+    }
+
+    #[test]
+    fn strict_typo_match_rejects_ambiguous_candidates() {
+        let names = vec!["cat", "cot"];
+        assert_eq!(best_repo_typo_match("cut", names.iter().copied(), 85), None);
+    }
+
+    #[test]
+    fn strict_typo_match_ignores_duplicate_names_from_multiple_repos() {
+        let names = vec!["cassette", "cassette"];
+        assert_eq!(
+            best_repo_typo_match("casete", names.iter().copied(), 85),
+            Some("cassette")
+        );
+    }
 }

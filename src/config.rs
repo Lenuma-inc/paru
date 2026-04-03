@@ -7,12 +7,12 @@ use crate::pkgbuild::PkgbuildRepos;
 use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
+use std::collections::HashSet;
 use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::{remove_file, OpenOptions};
 use std::io::{stderr, stdin, stdout, BufRead, IsTerminal, Write};
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -501,6 +501,8 @@ pub struct Config {
     pub pager_cmd: Option<String>,
 
     pub devel_suffixes: Vec<String>,
+    #[default = 85]
+    pub repo_typo_similarity: usize,
     #[default(GlobSet::empty())]
     pub no_warn: GlobSet,
     #[default(GlobSetBuilder::new())]
@@ -1196,6 +1198,14 @@ then initialise it with:
             "DevelSuffixes" => {
                 self.devel_suffixes
                     .extend(value?.split_whitespace().map(|s| s.to_string()));
+            }
+            "RepoTypoSimilarity" => {
+                let similarity = value?.parse::<usize>()?;
+                ensure!(
+                    (1..=100).contains(&similarity),
+                    tr!("value for '{}' must be between 1 and 100", key)
+                );
+                self.repo_typo_similarity = similarity;
             }
             "IgnoreDevelSource" => {
                 self.ignore_devel_source

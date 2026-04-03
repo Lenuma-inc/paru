@@ -233,6 +233,12 @@ Used when determining if a pkgver bump is used when the --needed option is
 set.
 
 .TP
+.B RepoTypoSimilarity = N
+Similarity threshold (in percent) used by repository typo tolerance during
+interactive install search (\fBparu <target>\fR). Higher values are stricter.
+Valid range is 1 to 100. Defaults to 85.
+
+.TP
 .B NoWarn = Packages...
 Don't warn when these packages are not in the aur, out of date, or orphaned.
 
