@@ -4,6 +4,9 @@ Feature packed AUR helper with integrated security scanning
 
 > **Note**: This is a modified fork of Paru for **LunaOS**.
 > Fork-specific features are listed below in **Fork Differences (LunaOS)**.
+> Upstream: https://github.com/Morganamilo/paru
+> This fork: https://github.com/Lenuma-inc/paru
+> Issue tracker for this fork: https://github.com/Lenuma-inc/paru/issues
 
 [![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
 [![paru-bin](https://img.shields.io/aur/version/paru-bin?color=1793d1&label=paru-bin&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-bin/)
@@ -20,6 +23,7 @@ Compared to upstream Paru, this fork includes:
 - Integrated PKGBUILD security scanning before build/install.
 - Built-in `paru downgrade` subcommand (ALA-based rollback and package downgrade workflow).
 - Strict typo tolerance for repository package names in interactive install search (`paru <target>`), applied only to repository results (not AUR) and intentionally strict to avoid incorrect matches and unnecessary slowdown.
+- `CombinedUpgrade` and `UpgradeMenu` are enabled by default, so `paru` shows a unified repo+AUR update menu in a `yay`-like format before installation.
 - Third-party attributions and licenses: [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
@@ -28,7 +32,7 @@ Compared to upstream Paru, this fork includes:
 
 ```
 sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
+git clone https://github.com/Lenuma-inc/paru.git
 cd paru
 makepkg -si
 ```

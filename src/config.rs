@@ -456,6 +456,7 @@ pub struct Config {
     #[default(YesNoAll::No)]
     pub provides: YesNoAll,
     pub pgp_fetch: bool,
+    #[default = true]
     pub combined_upgrade: bool,
     pub batch_install: bool,
     pub use_ask: bool,
@@ -509,6 +510,7 @@ pub struct Config {
     pub no_warn_builder: GlobSetBuilder,
     pub install_debug: bool,
 
+    #[default = true]
     pub upgrade_menu: bool,
 
     pub makepkg_conf: Option<String>,
