@@ -64,6 +64,10 @@ _paru() {
     fi
     return
   fi
+  if [[ ${COMP_WORDS[1]} == depend || ${COMP_WORDS[1]} == provide ]]; then
+    _paru_pkg
+    return
+  fi
 
   database=('asdeps asexplicit')
   files=('list machinereadable refresh regex' 'l x y')
@@ -101,7 +105,7 @@ _paru() {
   if [[ $? != 0 ]]; then
     _arch_ptr2comp core
     if [[ $COMP_CWORD -eq 1 && $cur != -* ]]; then
-      COMPREPLY+=($(compgen -W "downgrade" -- "$cur"))
+      COMPREPLY+=($(compgen -W "downgrade depend provide" -- "$cur"))
     fi
   elif [[ ! $prev =~ ^-[[:alnum:]_]*[Vbhr] && ! $prev == --@(cachedir|color|config|dbpath|help|hookdir|gpgdir|logfile|root|version) ]]; then
     [[ $cur == -* ]] && _arch_ptr2comp ${o#* } common ||

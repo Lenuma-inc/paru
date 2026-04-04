@@ -4,6 +4,7 @@ mod clean;
 mod command_line;
 mod completion;
 mod config;
+mod depend;
 mod devel;
 mod downgrade;
 mod download;
@@ -175,6 +176,10 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
     if let Some(first) = args.first() {
         if first.as_ref() == "downgrade" {
             return downgrade::run_subcommand(config, &args[1..]).await;
+        } else if first.as_ref() == "depend" {
+            return depend::run_subcommand(config, depend::Subcommand::Depend, &args[1..]).await;
+        } else if first.as_ref() == "provide" {
+            return depend::run_subcommand(config, depend::Subcommand::Provide, &args[1..]).await;
         }
     }
 

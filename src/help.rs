@@ -22,6 +22,8 @@ pub fn help() {
     printtr!("    paru {-G --getpkgbuild} [package(s)]");
     printtr!("    paru {-B --build}       [dir(s)]");
     printtr!("    paru downgrade          [--date <date>] [package]");
+    printtr!("    paru depend             [package(s)]");
+    printtr!("    paru provide            [package(s)]");
     println!();
     printtr!("If no arguments are provided 'paru -Syu' will be performed");
     println!();

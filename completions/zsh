@@ -10,6 +10,8 @@ _pacman_opts_commands=(
 	{-F,--files}'[Query the files database]'
 	{-G,--getpkgbuild}'[Get PKGBUILD from ABS or AUR]'
 	'downgrade[Downgrade package/system via ALA]'
+	'depend[Show package dependencies]'
+	'provide[Show package provides]'
 	{-L,--repoctl}'[List local repos]'
 	{-C,--chrootctl}'[Interactive shell to the chroot]'
 	{-Q,--query}'[Query the package database]'
@@ -261,6 +263,16 @@ _pacman_action_none() {
 _pacman_action_downgrade() {
 	_arguments -s : \
 		'--date[ALA snapshot date (YYYY-MM-DD)]:date:' \
+		'*:package:_pacman_completions_all_packages'
+}
+
+_pacman_action_depend() {
+	_arguments -s : \
+		'*:package:_pacman_completions_all_packages'
+}
+
+_pacman_action_provide() {
+	_arguments -s : \
 		'*:package:_pacman_completions_all_packages'
 }
 
@@ -521,6 +533,12 @@ _pacman_zsh_comp() {
 	local tmp
 	if [[ ${words[2]} == "downgrade" ]]; then
 		_pacman_action_downgrade
+		return
+	elif [[ ${words[2]} == "depend" ]]; then
+		_pacman_action_depend
+		return
+	elif [[ ${words[2]} == "provide" ]]; then
+		_pacman_action_provide
 		return
 	fi
 	args=( ${${${(M)words:#-*}#-}:#-*} )

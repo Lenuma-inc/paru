@@ -11,7 +11,7 @@ end
 
 
 # paru constants
-set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb downgrade'
+set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb downgrade depend provide'
 set -l listall "(paru -Pc | string replace ' ' \t)"
 set -l listpacman "(__fish_print_pacman_packages)"
 set -l show '__fish_contains_opt -s P show'
@@ -19,6 +19,8 @@ set -l getpkgbuild '__fish_contains_opt -s G getpkgbuild'
 set -l repoctl '__fish_contains_opt -s L repoctl'
 set -l chrootctl '__fish_contains_opt -s C chrootctl'
 set -l downgrade '__fish_seen_subcommand_from downgrade'
+set -l depend '__fish_seen_subcommand_from depend'
+set -l provide '__fish_seen_subcommand_from provide'
 
 # Pacman constants
 set -l listinstalled "(pacman -Q | string replace ' ' \t)"
@@ -48,6 +50,8 @@ complete -c $progname -s F -f -l files -n "$noopt" -d 'Query the files database'
 complete -c $progname -s V -f -l version -n "$noopt" -d 'Display version and exit'
 complete -c $progname -s h -f -l help -d 'Display help'
 complete -c $progname -f -n "$noopt" -a "downgrade" -d 'Downgrade package/system via ALA'
+complete -c $progname -f -n "$noopt" -a "depend" -d 'Show package dependencies'
+complete -c $progname -f -n "$noopt" -a "provide" -d 'Show package provides'
 
 # General options
 # Only offer these once a command has been given so they get prominent display
@@ -196,6 +200,10 @@ complete -c $progname -n "$chrootctl" -s u -l sysupgrade -d 'Upgrade the chroot'
 # Downgrade options
 complete -c $progname -n "$downgrade" -l date -d 'ALA snapshot date (YYYY-MM-DD)' -x
 complete -c $progname -n "$downgrade" -xa "$listall"
+
+# Depend/provide options
+complete -c $progname -n "$depend" -xa "$listall"
+complete -c $progname -n "$provide" -xa "$listall"
 
 # New options
 complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f
