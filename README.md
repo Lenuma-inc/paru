@@ -22,6 +22,7 @@ Compared to upstream Paru, this fork includes:
 
 - Integrated PKGBUILD security scanning before build/install.
 - Built-in `paru downgrade` subcommand (ALA-based rollback and package downgrade workflow).
+- Built-in `paru history` subcommand for reading `pacman.log`.
 - Built-in `paru depend <pkg>` and `paru provide <pkg>` subcommands for quick dependency/provide inspection.
 - Strict typo tolerance for repository package names in interactive install search (`paru <target>`), applied only to repository results (not AUR) and intentionally strict to avoid incorrect matches and unnecessary slowdown.
 - `CombinedUpgrade` and `UpgradeMenu` are enabled by default, so `paru` shows a unified repo+AUR update menu in a `yay`-like format before installation.
@@ -83,6 +84,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 `paru downgrade <pkg> --date 2024-12-01` -- Downgrade a package to the latest version available on/before a date.
 
 `paru downgrade --date 2024-12-01` -- Roll back repository packages/system to an ALA snapshot date.
+
+`paru history` -- Print the pacman log configured in `pacman.conf`.
 
 `paru depend <pkg>` -- Print package dependencies from repository/local metadata.
 

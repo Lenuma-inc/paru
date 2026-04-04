@@ -10,6 +10,7 @@ _pacman_opts_commands=(
 	{-F,--files}'[Query the files database]'
 	{-G,--getpkgbuild}'[Get PKGBUILD from ABS or AUR]'
 	'downgrade[Downgrade package/system via ALA]'
+	'history[Show pacman log]'
 	'depend[Show package dependencies]'
 	'provide[Show package provides]'
 	{-L,--repoctl}'[List local repos]'
@@ -533,6 +534,9 @@ _pacman_zsh_comp() {
 	local tmp
 	if [[ ${words[2]} == "downgrade" ]]; then
 		_pacman_action_downgrade
+		return
+	elif [[ ${words[2]} == "history" ]]; then
+		_arguments -s : "$_pacman_opts_common[@]"
 		return
 	elif [[ ${words[2]} == "depend" ]]; then
 		_pacman_action_depend

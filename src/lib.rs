@@ -11,6 +11,7 @@ mod download;
 mod exec;
 mod fmt;
 mod help;
+mod history;
 mod info;
 mod install;
 mod keys;
@@ -173,13 +174,22 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse(Some(name.as_str()), &file)?;
     };
 
-    if let Some(first) = args.first() {
-        if first.as_ref() == "downgrade" {
-            return downgrade::run_subcommand(config, &args[1..]).await;
-        } else if first.as_ref() == "depend" {
-            return depend::run_subcommand(config, depend::Subcommand::Depend, &args[1..]).await;
-        } else if first.as_ref() == "provide" {
-            return depend::run_subcommand(config, depend::Subcommand::Provide, &args[1..]).await;
+    if let Some((index, command)) = find_builtin_subcommand(args) {
+        let sub_args = args
+            .iter()
+            .take(index)
+            .chain(args.iter().skip(index + 1))
+            .map(|arg| arg.as_ref().to_string())
+            .collect::<Vec<_>>();
+
+        if command == "downgrade" {
+            return downgrade::run_subcommand(config, &sub_args).await;
+        } else if command == "history" {
+            return history::run_subcommand(config, &sub_args);
+        } else if command == "depend" {
+            return depend::run_subcommand(config, depend::Subcommand::Depend, &sub_args).await;
+        } else if command == "provide" {
+            return depend::run_subcommand(config, depend::Subcommand::Provide, &sub_args).await;
         }
     }
 
@@ -216,6 +226,92 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
     log::debug!("{:#?}", config);
 
     handle_cmd(config).await
+}
+
+fn find_builtin_subcommand<S: AsRef<str>>(args: &[S]) -> Option<(usize, &str)> {
+    let mut takes_value = false;
+
+    for (i, arg) in args.iter().enumerate() {
+        let arg = arg.as_ref();
+
+        if takes_value {
+            takes_value = false;
+            continue;
+        }
+
+        if !arg.starts_with('-') {
+            return matches!(arg, "downgrade" | "history" | "depend" | "provide")
+                .then_some((i, arg));
+        }
+
+        if arg == "--" {
+            break;
+        }
+
+        if let Some(long) = arg.strip_prefix("--") {
+            if long.contains('=') {
+                continue;
+            }
+
+            takes_value = matches!(
+                long,
+                "aururl"
+                    | "aurrpcurl"
+                    | "makepkg"
+                    | "pacman"
+                    | "pacman-conf"
+                    | "git"
+                    | "gpg"
+                    | "sudo"
+                    | "pkgctl"
+                    | "bat"
+                    | "pager"
+                    | "config"
+                    | "builddir"
+                    | "clonedir"
+                    | "develfile"
+                    | "makepkgconf"
+                    | "mflags"
+                    | "gitflags"
+                    | "gpgflags"
+                    | "sudoflags"
+                    | "batflags"
+                    | "chrootflags"
+                    | "chrootpkgs"
+                    | "rootchrootpkgs"
+                    | "develsuffixes"
+                    | "downgrade"
+                    | "completioninterval"
+                    | "sortby"
+                    | "searchby"
+                    | "limit"
+                    | "dbpath"
+                    | "root"
+                    | "ask"
+                    | "cachedir"
+                    | "arch"
+                    | "color"
+                    | "gpgdir"
+                    | "hookdir"
+                    | "logfile"
+                    | "sysroot"
+                    | "ignore"
+                    | "ignoregroup"
+                    | "ignoredevel"
+                    | "assume-installed"
+                    | "print-format"
+                    | "overwrite"
+                    | "mode"
+            );
+        } else if arg.starts_with('-')
+            && arg.len() == 2
+            && matches!(arg.as_bytes()[1] as char, 'b' | 'r')
+        {
+            takes_value = true;
+        }
+    }
+
+    None
 }
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {

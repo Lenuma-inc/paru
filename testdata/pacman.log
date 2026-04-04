@@ -1,0 +1,9 @@
+[2024-01-01T12:00:00+0000] [PACMAN] Running 'pacman -Syu'
+[2024-01-01T12:01:00+0000] [ALPM] installed foo (1.0-1)
+[2024-01-01T12:02:00+0000] [ALPM] upgraded foo (1.0-1 -> 1.1-1)
+[2024-01-01T12:03:00+0000] [PACMAN] Running 'pacman -R foo'
+[2024-01-01T12:04:00+0000] [ALPM] removed foo (1.1-1)
+[2024-01-02T12:00:00+0000] [PACMAN] Running 'pacman -S bar'
+[2024-01-02T12:01:00+0000] [ALPM] installed bar (2.0-1)
+[2024-01-03T12:00:00+0000] [PACMAN] Running 'pacman -U foo-1.0-1.pkg.tar.zst'
+[2024-01-03T12:01:00+0000] [ALPM] downgraded foo (1.1-1 -> 1.0-1)

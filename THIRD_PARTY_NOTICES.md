@@ -15,3 +15,10 @@ If you need stricter legal wording (exact copied fragments, license text, commit
 - License: GPL-3.0
 - Usage in this fork: the `paru downgrade` subcommand is inspired by archarchive — uses similar ideas and patterns for working with Arch Linux Archive (ALA).
 - Location in this repository: `src/downgrade.rs`.
+
+## paclog
+
+- Upstream: https://github.com/codybloemhard/paclog
+- License: MIT
+- Usage in this fork: the `paru history` subcommand was implemented with `paclog` used as a behavioral reference for reading `pacman.log`.
+- Location in this repository: `src/history.rs`.
