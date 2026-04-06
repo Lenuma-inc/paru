@@ -140,6 +140,57 @@ impl Installer {
         Ok(())
     }
 
+    fn early_update_first(&mut self, config: &mut Config, targets: &[String]) -> Result<()> {
+        if targets.is_empty() {
+            return Ok(());
+        }
+
+        let mut args = config.pacman_args();
+        args.targets.clear();
+        args.remove("u").remove("sysupgrade");
+        args.targets(targets.iter().map(|s| s.as_str()));
+        exec::pacman(config, &args)?.success()?;
+        config.args.remove("y").remove("refresh");
+        Ok(())
+    }
+
+    fn update_first_targets<'a>(
+        &self,
+        config: &Config,
+        repo_targets: &mut Vec<Targ<'a>>,
+    ) -> Vec<String> {
+        if config.update_first.is_empty() {
+            return Vec::new();
+        }
+
+        let mut update_first = Vec::new();
+        let mut seen = HashSet::new();
+
+        repo_targets.retain(|target| {
+            if config.should_update_first(target.pkg) {
+                let target = target.to_string();
+                if seen.insert(target.clone()) {
+                    update_first.push(target);
+                }
+                false
+            } else {
+                true
+            }
+        });
+
+        for pkg in config.alpm.localdb().pkgs().iter() {
+            let name = pkg.name();
+            if config.should_update_first(name)
+                && config.alpm.syncdbs().pkg(name).is_ok()
+                && seen.insert(name.to_string())
+            {
+                update_first.push(name.to_string());
+            }
+        }
+
+        update_first
+    }
+
     fn sudo_loop(&self, config: &Config) -> Result<()> {
         if !config.sudo_loop.is_empty() {
             let mut flags = config.sudo_flags.clone();
@@ -901,9 +952,15 @@ impl Installer {
 
         let targets = args::parse_targets(targets_str);
         let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets)?;
+        let update_first = self.update_first_targets(config, &mut repo_targets);
 
         if targets_str.is_empty() && self.sysupgrade == 0 && !self.sysupgrade == 0 {
             bail!(tr!("no targets specified (use -h for help)"));
+        }
+
+        if self.sysupgrade != 0 || !targets_str.is_empty() {
+            self.early_update_first(config, &update_first)?;
+            self.done_something |= !update_first.is_empty();
         }
 
         if config.mode.repo() {
@@ -914,8 +971,7 @@ impl Installer {
             } else if !config.chroot
                 && (config.args.has_arg("y", "refresh")
                     || config.args.has_arg("u", "sysupgrade")
-                    || !repo_targets.is_empty()
-                    || config.mode == Mode::REPO)
+                    || !repo_targets.is_empty())
             {
                 let targets = repo_targets.iter().map(|t| t.to_string()).collect();
                 repo_targets.clear();

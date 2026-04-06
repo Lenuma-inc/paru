@@ -26,6 +26,7 @@ Compared to upstream Paru, this fork includes:
 - Built-in `paru depend <pkg>` and `paru provide <pkg>` subcommands for quick dependency/provide inspection.
 - Strict typo tolerance for repository package names in interactive install search (`paru <target>`), applied only to repository results (not AUR) and intentionally strict to avoid incorrect matches and unnecessary slowdown.
 - `CombinedUpgrade` and `UpgradeMenu` are enabled by default, so `paru` shows a unified repo+AUR update menu in a `yay`-like format before installation.
+- `UpdateFirst` config support for upgrading selected installed repo packages before the main install or sysupgrade transaction, useful for patterns like `*-keyring`.
 - Third-party attributions and licenses: [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
@@ -56,6 +57,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 - **Tracking -git packages**: Paru tracks -git package by monitoring the upstream repository. Paru can only do this for packages that paru itself installed. `paru --gendb` will make paru aware of packages it did not install.
 
 - **PKGBUILD syntax highlighting**: You can install [`bat`](https://github.com/sharkdp/bat) to enable syntax highlighting when viewing PKGBUILDs with `-G --print`.
+
+- **Update keyrings first**: In `paru.conf`, set `UpdateFirst = *-keyring` to upgrade installed keyring packages before the main install or upgrade transaction.
 
 ## Examples
 

@@ -243,6 +243,14 @@ Valid range is 1 to 100. Defaults to 85.
 Don't warn when these packages are not in the aur, out of date, or orphaned.
 
 .TP
+.B UpdateFirst = Packages...
+Upgrade installed repository packages matching these glob patterns before the
+main install or sysupgrade transaction.
+
+This is useful for packages such as \fBarchlinux-keyring\fR that may need to be
+current before other packages can be installed safely.
+
+.TP
 .B LocalRepo [= Repos...]
 Use a local repo to build and upgrade AUR packages.
 

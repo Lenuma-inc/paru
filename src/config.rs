@@ -508,6 +508,10 @@ pub struct Config {
     pub no_warn: GlobSet,
     #[default(GlobSetBuilder::new())]
     pub no_warn_builder: GlobSetBuilder,
+    #[default(GlobSet::empty())]
+    pub update_first: GlobSet,
+    #[default(GlobSetBuilder::new())]
+    pub update_first_builder: GlobSetBuilder,
     pub install_debug: bool,
 
     #[default = true]
@@ -833,6 +837,7 @@ then initialise it with:
         }
 
         self.no_warn = self.no_warn_builder.build()?;
+        self.update_first = self.update_first_builder.build()?;
         self.ignore_devel = self.ignore_devel_builder.build()?;
 
         if !self.assume_installed.is_empty() && !self.chroot {
@@ -1223,6 +1228,11 @@ then initialise it with:
                     self.no_warn_builder.add(Glob::new(word)?);
                 }
             }
+            "UpdateFirst" => {
+                for word in value?.split_whitespace() {
+                    self.update_first_builder.add(Glob::new(word)?);
+                }
+            }
             "Mode" => {
                 for word in value?.split_whitespace() {
                     self.mode |= word.parse()?;
@@ -1252,6 +1262,10 @@ then initialise it with:
         } else {
             "aur"
         }
+    }
+
+    pub fn should_update_first(&self, pkg: &str) -> bool {
+        self.update_first.is_match(pkg)
     }
 }
 
@@ -1326,5 +1340,24 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
         LogLevel::DEBUG if alpm_debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Config;
+    use cini::Ini;
+
+    #[test]
+    fn parse_update_first_globs() {
+        let mut config = Config::default();
+        config
+            .parse(None, "[options]\nUpdateFirst = *-keyring archlinux*\n")
+            .unwrap();
+        config.update_first = config.update_first_builder.build().unwrap();
+
+        assert!(config.should_update_first("archlinux-keyring"));
+        assert!(config.should_update_first("archlinuxfoo"));
+        assert!(!config.should_update_first("pacman"));
     }
 }
